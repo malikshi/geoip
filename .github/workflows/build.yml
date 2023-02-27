@@ -153,7 +153,7 @@ jobs:
             const result = await github.rest.actions.createWorkflowDispatch({
               owner: 'malikshi',
               repo: 'v2ray-rules-dat',
-              workflow_id: 'run.yaml',
+              workflow_id: 'run.yml',
               ref: 'master'
             })
             console.log(result)
