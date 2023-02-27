@@ -144,3 +144,16 @@ jobs:
           delete_tag_pattern: ""
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trigger Synch V2ray Assets
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GHA_WORKFLOW_TRIGGER }}
+          script: |
+            const result = await github.rest.actions.createWorkflowDispatch({
+              owner: 'malikshi',
+              repo: 'v2ray-rules-dat',
+              workflow_id: 'run.yaml',
+              ref: 'master'
+            })
+            console.log(result)
