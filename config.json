@@ -65,6 +65,14 @@
       "action": "add",
       "args": {
         "name": "firewall",
+        "uri": "https://raw.githubusercontent.com/malikshi/ASN/main/ip_list.txt"
+      }
+    },
+    {
+      "type": "text",
+      "action": "add",
+      "args": {
+        "name": "firewall",
         "uri": "https://www.cloudflare.com/ips-v4"
       }
     },
@@ -74,14 +82,6 @@
       "args": {
         "name": "firewall",
         "uri": "https://www.cloudflare.com/ips-v6"
-      }
-    },
-    {
-      "type": "text",
-      "action": "add",
-      "args": {
-        "name": "firewall",
-        "uri": "https://raw.githubusercontent.com/malikshi/ASN/main/ip_list.txt"
       }
     },
     {
@@ -134,7 +134,8 @@
           "netflix",
           "telegram",
           "twitter",
-          "firewall"
+          "firewall",
+          "doh"
         ]
       }
     },
@@ -162,7 +163,8 @@
           "netflix",
           "telegram",
           "twitter",
-          "firewall"
+          "firewall",
+          "doh"
         ]
       }
     },
@@ -188,7 +190,8 @@
           "netflix",
           "telegram",
           "twitter",
-          "firewall"
+          "firewall",
+          "doh"
         ]
       }
     },
