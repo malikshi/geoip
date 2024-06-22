@@ -96,6 +96,14 @@
       "type": "text",
       "action": "add",
       "args": {
+        "name": "geoid",
+        "uri": "https://raw.githubusercontent.com/malikshi/geoid/main/IP.Indonesia.list"
+      }
+    },
+    {
+      "type": "text",
+      "action": "add",
+      "args": {
         "inputDir": "./data"
       }
     },
@@ -135,7 +143,8 @@
           "telegram",
           "twitter",
           "firewall",
-          "doh"
+          "doh",
+          "geoid"
         ]
       }
     },
@@ -164,7 +173,8 @@
           "telegram",
           "twitter",
           "firewall",
-          "doh"
+          "doh",
+          "geoid"
         ]
       }
     },
@@ -191,7 +201,8 @@
           "telegram",
           "twitter",
           "firewall",
-          "doh"
+          "doh",
+          "geoid"
         ]
       }
     },
