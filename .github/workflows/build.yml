@@ -2,7 +2,7 @@ name: Build geoip files
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * 4"
+    - cron: "20 04 * * *"
   push:
     branches:
       - master
@@ -24,6 +24,13 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: ./go.mod
+
+      - name: Set timezone to WIB Jakarta
+        uses: szenius/set-timezone@v1.1
+        with:
+          timezoneLinux: "Asia/Jakarta"
+          timezoneMacos: "Asia/Jakarta"
+          timezoneWindows: "Indonesia Standard Time"
 
       - name: Set variables
         run: |
@@ -120,3 +127,25 @@ jobs:
           file: ./output/*
           release_name: ${{ env.RELEASE_NAME }}
           tag: ${{ env.TAG_NAME }}
+
+      - name: Delete Old Release
+        uses: dev-drprasad/delete-older-releases@v0.2.1
+        with:
+          repo: malikshi/geoip
+          keep_latest: 1
+          delete_tag_pattern: ""
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trigger Synch V2ray Assets
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GHA_WORKFLOW_TRIGGER }}
+          script: |
+            const result = await github.rest.actions.createWorkflowDispatch({
+              owner: 'malikshi',
+              repo: 'v2ray-rules-dat',
+              workflow_id: 'run.yml',
+              ref: 'master'
+            })
+            console.log(result)
