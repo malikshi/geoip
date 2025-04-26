@@ -120,6 +120,14 @@
       "type": "text",
       "action": "add",
       "args": {
+        "name": "vercel",
+        "uri": "https://raw.githubusercontent.com/malikshi/dns_ip/refs/heads/main/vercel.txt"
+      }
+    },
+    {
+      "type": "text",
+      "action": "add",
+      "args": {
         "name": "malicious",
         "uri": "https://raw.githubusercontent.com/elliotwutingfeng/Inversion-DNSBL-Blocklists/main/Google_ipv4.txt"
       }
