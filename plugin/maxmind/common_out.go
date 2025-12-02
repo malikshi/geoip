@@ -13,13 +13,25 @@ import (
 )
 
 var (
-	defaultOutputName       = "Country.mmdb"
+	defaultGeoLite2CountryMMDBOutputName = "Country.mmdb"
+
 	defaultMaxmindOutputDir = filepath.Join("./", "output", "maxmind")
 	defaultDBIPOutputDir    = filepath.Join("./", "output", "db-ip")
 	defaultIPInfoOutputDir  = filepath.Join("./", "output", "ipinfo")
 )
 
-func newMMDBOut(iType string, iDesc string, action lib.Action, data json.RawMessage) (lib.OutputConverter, error) {
+// Reference: https://ipinfo.io/lite
+type ipInfoLite struct {
+	ASN           string `maxminddb:"asn"`
+	ASName        string `maxminddb:"as_name"`
+	ASDomain      string `maxminddb:"as_domain"`
+	Continent     string `maxminddb:"continent"`
+	ContinentCode string `maxminddb:"continent_code"`
+	Country       string `maxminddb:"country"`
+	CountryCode   string `maxminddb:"country_code"`
+}
+
+func newGeoLite2CountryMMDBOut(iType string, iDesc string, action lib.Action, data json.RawMessage) (lib.OutputConverter, error) {
 	var tmp struct {
 		OutputName string     `json:"outputName"`
 		OutputDir  string     `json:"outputDir"`
@@ -38,12 +50,12 @@ func newMMDBOut(iType string, iDesc string, action lib.Action, data json.RawMess
 	}
 
 	if tmp.OutputName == "" {
-		tmp.OutputName = defaultOutputName
+		tmp.OutputName = defaultGeoLite2CountryMMDBOutputName
 	}
 
 	if tmp.OutputDir == "" {
 		switch iType {
-		case TypeMaxmindMMDBOut:
+		case TypeGeoLite2CountryMMDBOut:
 			tmp.OutputDir = defaultMaxmindOutputDir
 
 		case TypeDBIPCountryMMDBOut:
@@ -54,7 +66,7 @@ func newMMDBOut(iType string, iDesc string, action lib.Action, data json.RawMess
 		}
 	}
 
-	return &MMDBOut{
+	return &GeoLite2CountryMMDBOut{
 		Type:        iType,
 		Action:      action,
 		Description: iDesc,
@@ -69,18 +81,18 @@ func newMMDBOut(iType string, iDesc string, action lib.Action, data json.RawMess
 	}, nil
 }
 
-func (m *MMDBOut) GetExtraInfo() (map[string]interface{}, error) {
-	if strings.TrimSpace(m.SourceMMDBURI) == "" {
+func (g *GeoLite2CountryMMDBOut) GetExtraInfo() (map[string]any, error) {
+	if strings.TrimSpace(g.SourceMMDBURI) == "" {
 		return nil, nil
 	}
 
 	var content []byte
 	var err error
 	switch {
-	case strings.HasPrefix(strings.ToLower(m.SourceMMDBURI), "http://"), strings.HasPrefix(strings.ToLower(m.SourceMMDBURI), "https://"):
-		content, err = lib.GetRemoteURLContent(m.SourceMMDBURI)
+	case strings.HasPrefix(strings.ToLower(g.SourceMMDBURI), "http://"), strings.HasPrefix(strings.ToLower(g.SourceMMDBURI), "https://"):
+		content, err = lib.GetRemoteURLContent(g.SourceMMDBURI)
 	default:
-		content, err = os.ReadFile(m.SourceMMDBURI)
+		content, err = os.ReadFile(g.SourceMMDBURI)
 	}
 	if err != nil {
 		return nil, err
@@ -92,11 +104,11 @@ func (m *MMDBOut) GetExtraInfo() (map[string]interface{}, error) {
 	}
 	defer db.Close()
 
-	infoList := make(map[string]interface{})
+	infoList := make(map[string]any)
 	networks := db.Networks(maxminddb.SkipAliasedNetworks)
 	for networks.Next() {
-		switch m.Type {
-		case TypeMaxmindMMDBOut, TypeDBIPCountryMMDBOut:
+		switch g.Type {
+		case TypeGeoLite2CountryMMDBOut, TypeDBIPCountryMMDBOut:
 			var record geoip2.Country
 			_, err := networks.Network(&record)
 			if err != nil {
@@ -143,19 +155,16 @@ func (m *MMDBOut) GetExtraInfo() (map[string]interface{}, error) {
 			}
 
 		case TypeIPInfoCountryMMDBOut:
-			record := struct {
-				Continent     string `maxminddb:"continent"`
-				ContinentName string `maxminddb:"continent_name"`
-				Country       string `maxminddb:"country"`
-				CountryName   string `maxminddb:"country_name"`
-			}{}
-
+			var record ipInfoLite
 			_, err := networks.Network(&record)
 			if err != nil {
 				return nil, err
 			}
-			countryCode := strings.ToUpper(strings.TrimSpace(record.Country))
+			countryCode := strings.ToUpper(strings.TrimSpace(record.CountryCode))
 			if _, found := infoList[countryCode]; !found {
+				record.ASN = ""
+				record.ASName = ""
+				record.ASDomain = ""
 				infoList[countryCode] = record
 			}
 
@@ -170,7 +179,7 @@ func (m *MMDBOut) GetExtraInfo() (map[string]interface{}, error) {
 	}
 
 	if len(infoList) == 0 {
-		return nil, fmt.Errorf("❌ [type %s | action %s] no extra info found in the source MMDB file: %s", m.Type, m.Action, m.SourceMMDBURI)
+		return nil, fmt.Errorf("❌ [type %s | action %s] no extra info found in the source MMDB file: %s", g.Type, g.Action, g.SourceMMDBURI)
 	}
 
 	return infoList, nil
