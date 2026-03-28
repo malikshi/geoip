@@ -80,7 +80,7 @@
       "action": "add",
       "args": {
         "name": "firewall",
-        "uri": "https://raw.githubusercontent.com/malikshi/ASN/main/ip_list.txt"
+        "uri": "https://raw.githubusercontent.com/malikshi/ASN/refs/heads/release/default/text/ip_list.txt"
       }
     },
     {
