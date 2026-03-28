@@ -104,7 +104,7 @@
       "action": "add",
       "args": {
         "name": "geoid",
-        "uri": "https://raw.githubusercontent.com/malikshi/geoid/main/IP.Indonesia.list"
+        "uri": "https://raw.githubusercontent.com/malikshi/geoid/refs/heads/release/IP.Indonesia.list"
       }
     },
     {
